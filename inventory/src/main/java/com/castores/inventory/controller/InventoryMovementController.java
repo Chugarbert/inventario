@@ -72,6 +72,8 @@ public class InventoryMovementController {
             // Agregar la lista de movimientos al modelo para la vista Thymeleaf
             model.addAttribute("movements", movements);
             logger.info("movements ----------> {}", movements);
+            logger.info("role {}", role);
+            model.addAttribute("userRole", role.getName()); // Pasar el rol como atributo al modelo
             return "historial";
         } else {
             logger.info("<------------ acceso negado ---------->");

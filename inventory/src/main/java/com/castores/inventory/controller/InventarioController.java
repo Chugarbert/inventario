@@ -132,6 +132,7 @@ public class InventarioController {
                 model.addAttribute("userId", user.getIdUsuario());
                 logger.info("role {}", role);
                 model.addAttribute("userRole", role.getName()); // Pasar el rol como atributo al modelo
+                
             }
         } else {
             logger.info("<------------ acceso negado ---------->");
