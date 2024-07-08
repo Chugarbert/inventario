@@ -41,13 +41,13 @@ public class DataInitializer {
         return args -> {
             // Create permissions if they do not exist
             String[] permissionNames = {
-                    "Ver módulo inventario",
+                    "Ver modulo inventario",
                     "Agregar nuevos productos",
                     "Aumentar inventario",
                     "Dar de baja/reactivar un producto",
-                    "Ver módulo para Salida de productos",
-                    "Sacar inventario del almacén",
-                    "Ver módulo del histórico"
+                    "Ver modulo para Salida de productos",
+                    "Sacar inventario del almacen",
+                    "Ver modulo del historico"
             };
 
             Set<Permission> permissions = new HashSet<>();
@@ -77,16 +77,16 @@ public class DataInitializer {
 
             // Assign permissions to roles
             Set<String> adminPermissionNames = Set.of(
-                    "Ver módulo inventario",
+                    "Ver modulo inventario",
                     "Agregar nuevos productos",
                     "Aumentar inventario",
                     "Dar de baja/reactivar un producto",
-                    "Ver módulo del histórico");
+                    "Ver modulo del historico");
 
             Set<String> almacenistaPermissionNames = Set.of(
-                    "Ver módulo inventario",
-                    "Ver módulo para Salida de productos",
-                    "Sacar inventario del almacén");
+                    "Ver modulo inventario",
+                    "Ver modulo para Salida de productos",
+                    "Sacar inventario del almacen");
 
             assignPermissionsToRole(adminRole, adminPermissionNames, permissions);
             assignPermissionsToRole(almacenistaRole, almacenistaPermissionNames, permissions);
