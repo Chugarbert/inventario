@@ -46,6 +46,18 @@ logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n
 
 3. Considerar que la web app correrá en localhost:8080
 
+4. Considerar los siguientes usuarios para las pruebas:
+### Usuarios:
+email: admin@example.com
+pass:  adminpassword
+
+email: user1@example.com
+pass:  user1password
+
+email: user2@example.com
+pass:  user2password
+
+
 ## Run_Application
 
 Desde Visual Studio Code, abrir el archivo y dar clic en el boton Run
