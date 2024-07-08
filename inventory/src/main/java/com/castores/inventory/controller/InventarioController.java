@@ -44,6 +44,7 @@ public class InventarioController {
 
     @Autowired
     private AuthorizationService authorizationService;
+
     /*
      * @GetMapping("/inventario")
      * public String inventario(Model model) {
@@ -61,16 +62,18 @@ public class InventarioController {
          * model.addAttribute("products", Products);
          */
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String roleName = auth.getAuthorities().iterator().next().getAuthority(); // Obtener el rol del usuario autenticado
+        String roleName = auth.getAuthorities().iterator().next().getAuthority(); // Obtener el rol del usuario
+                                                                                  // autenticado
         Role role = RoleRepository.findByName(roleName);
         // Verificar si el usuario tiene acceso a la acción solicitada
-        if (authorizationService.hasAccess(role, "Ver módulo inventario")) {
+        if (authorizationService.hasAccess(role, "Ver modulo inventario")) {
+            logger.info("<------------ acceso concedido ---------->");
             return "inventario";
         } else {
-            return "Acceso denegado";
+            logger.info("<------------ acceso negado ---------->");
+            return "acceso_negado";
         }
 
-      
     }
 
     @GetMapping("/inventario_in")
@@ -97,108 +100,143 @@ public class InventarioController {
     @GetMapping("/inventario_out")
     public String inventario_out(Model model) {
         // Obtener la autenticación actual del contexto de seguridad
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String roleName = auth.getAuthorities().iterator().next().getAuthority(); // Obtener el rol del usuario
+                                                                                  // autenticado
+        Role role = RoleRepository.findByName(roleName);
+        // Verificar si el usuario tiene acceso a la acción solicitada
+        if (authorizationService.hasAccess(role, "Ver modulo para salida de productos")) {
+            logger.info("<------------ acceso concedido ---------->");
+            if (auth != null && auth.getPrincipal() instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) auth.getPrincipal();
+                logger.info("userDetails ---------->{}", userDetails.getUsername());
+                User user = UserRepository.findByCorreo(userDetails.getUsername());
 
-        if (auth != null && auth.getPrincipal() instanceof UserDetails) {
-            UserDetails userDetails = (UserDetails) auth.getPrincipal();
-            logger.info("userDetails ---------->{}", userDetails.getUsername());
-            User user = UserRepository.findByCorreo(userDetails.getUsername());
-            
-            logger.info("userData ------------->{}", user.getIdUsuario());
-            List<Product> Products = ProductRepository.findByEstatus(1);
+                logger.info("userData ------------->{}", user.getIdUsuario());
+                List<Product> Products = ProductRepository.findByEstatus(1);
 
-            logger.info("Lista de Productos {}", Products);
-            model.addAttribute("products", Products);
-            model.addAttribute("userId",  user.getIdUsuario());
+                logger.info("Lista de Productos {}", Products);
+                model.addAttribute("products", Products);
+                model.addAttribute("userId", user.getIdUsuario());
+            }
+        } else {
+            logger.info("<------------ acceso negado ---------->");
+            return "acceso_negado";
         }
 
-      /*   List<Product> Products = ProductRepository.findByEstatus(1);
-        logger.info("Lista de Productos {}", Products);
-        model.addAttribute("products", Products); */
         return "inventario_out";
     }
 
     @PostMapping("/inventario/agregar")
     public String agregarProduct(@RequestParam String nombre) {
-        Product Product = new Product();
-        Product.setNombre(nombre);
-        Product.setCantidad(0);
-        Product.setEstatus(1); // Activo
-        ProductRepository.save(Product);
-        return "redirect:/inventario_in";
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String roleName = auth.getAuthorities().iterator().next().getAuthority(); // Obtener el rol del usuario
+                                                                                  // autenticado
+        Role role = RoleRepository.findByName(roleName);
+        // Verificar si el usuario tiene acceso a la acción solicitada
+        if (authorizationService.hasAccess(role, "Agregar nuevos productos")) {
+            logger.info("<------------ acceso concedido ---------->");
+            Product Product = new Product();
+            Product.setNombre(nombre);
+            Product.setCantidad(0);
+            Product.setEstatus(1); // Activo
+            ProductRepository.save(Product);
+            return "redirect:/inventario_in";
+        } else {
+            logger.info("<------------ acceso negado ---------->");
+            return "acceso_negado";
+        }
+
     }
 
     @PostMapping("/inventario/aumentar")
     public String aumentarInventario(@RequestParam Long id, @RequestParam int cantidad, @RequestParam Integer userId,
             Model model) {
-        Product product = ProductRepository.findById(id).orElse(null);
-        User user = UserRepository.findById(userId).orElse(null); // UserRepository.findById(userId).orElse(null);
-        if (product == null) {
-            model.addAttribute("error", "El producto con el ID especificado no existe.");
-            List<Product> Products = ProductRepository.findAll();
-            logger.info("Lista de Productos {}", Products);
-            model.addAttribute("products", Products);
-            model.addAttribute("userId",  userId);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String roleName = auth.getAuthorities().iterator().next().getAuthority(); // Obtener el rol del usuario
+                                                                                  // autenticado
+        Role role = RoleRepository.findByName(roleName);
+        // Verificar si el usuario tiene acceso a la acción solicitada
+        if (authorizationService.hasAccess(role, "Aumentar inventario")) {
+            logger.info("<------------ acceso concedido ---------->");
+
+            Product product = ProductRepository.findById(id).orElse(null);
+            User user = UserRepository.findById(userId).orElse(null); // UserRepository.findById(userId).orElse(null);
+            if (product == null) {
+                model.addAttribute("error", "El producto con el ID especificado no existe.");
+                List<Product> Products = ProductRepository.findAll();
+                logger.info("Lista de Productos {}", Products);
+                model.addAttribute("products", Products);
+                model.addAttribute("userId", userId);
+                return "inventario_in";
+            }
+
+            if (cantidad <= 0) {
+
+                model.addAttribute("error", "La cantidad a aumentar debe ser mayor que cero.");
+                List<Product> Products = ProductRepository.findAll();
+                logger.info("Lista de Productos {}", Products);
+                model.addAttribute("products", Products);
+                model.addAttribute("userId", userId);
+                return "inventario_in";
+            }
+
+            if (product.getEstatus() == 0) {
+                model.addAttribute("error",
+                        "No se puede modificar la existencia de un producto con estado inactivo. Por favor, vuelva a activar el producto antes de actualizar su existencia.");
+                List<Product> Products = ProductRepository.findAll();
+                logger.info("Lista de Productos {}", Products);
+                model.addAttribute("products", Products);
+                model.addAttribute("userId", userId);
+                return "inventario_in";
+            }
+
+            product.setCantidad(product.getCantidad() + cantidad);
+            ProductRepository.save(product);
+
+            InventoryMovement movement = new InventoryMovement();
+            movement.setProduct(product);
+            movement.setType("ENTRADA");
+            movement.setQuantity(cantidad);
+            movement.setUser(user);
+            movement.setDateTime(LocalDateTime.now());
+            inventoryMovementService.saveMovement(movement);
+
+            List<Product> products = ProductRepository.findAll();
+            logger.info("Lista de Productos {}", products);
+            model.addAttribute("products", products);
+            model.addAttribute("userId", userId);
+
             return "inventario_in";
+        } else {
+            logger.info("<------------ acceso negado ---------->");
+            return "acceso_negado";
         }
 
-        if (cantidad <= 0) {
-
-            model.addAttribute("error", "La cantidad a aumentar debe ser mayor que cero.");
-            List<Product> Products = ProductRepository.findAll();
-            logger.info("Lista de Productos {}", Products);
-            model.addAttribute("products", Products);
-            model.addAttribute("userId",  userId);
-            return "inventario_in";
-        }
-
-        if (product.getEstatus() == 0) {
-            model.addAttribute("error",
-                    "No se puede modificar la existencia de un producto con estado inactivo. Por favor, vuelva a activar el producto antes de actualizar su existencia.");
-            List<Product> Products = ProductRepository.findAll();
-            logger.info("Lista de Productos {}", Products);
-            model.addAttribute("products", Products);
-            model.addAttribute("userId",  userId);
-            return "inventario_in";
-        }
-
-        product.setCantidad(product.getCantidad() + cantidad);
-        ProductRepository.save(product);
-
-        InventoryMovement movement = new InventoryMovement();
-        movement.setProduct(product);
-        movement.setType("ENTRADA");
-        movement.setQuantity(cantidad);
-        movement.setUser(user);
-        movement.setDateTime(LocalDateTime.now());
-        inventoryMovementService.saveMovement(movement);
-
-        List<Product> products = ProductRepository.findAll();
-        logger.info("Lista de Productos {}", products);
-        model.addAttribute("products", products);
-        model.addAttribute("userId",  userId);
-
-        return "inventario_in";
     }
 
     @PostMapping("/inventario/quitar")
-    public String quiarInventario(@RequestParam Long id, @RequestParam int cantidad,  @RequestParam Integer userId, Model model) {
+    public String quiarInventario(@RequestParam Long id, @RequestParam int cantidad, @RequestParam Integer userId,
+            Model model) {
         Product Product = ProductRepository.findById(id).orElse(null);
-        User user = UserRepository.findById(userId).orElse(null); 
+        User user = UserRepository.findById(userId).orElse(null);
         if (Product == null) {
             model.addAttribute("error", "El producto con el ID especificado no existe.");
             List<Product> Products = ProductRepository.findByEstatus(1);
             logger.info("Lista de Productos {}", Products);
             model.addAttribute("products", Products);
-            model.addAttribute("userId",  userId);
+            model.addAttribute("userId", userId);
             return "inventario_out";
-        }else{
+        } else {
             if (cantidad < 0 && Product.getCantidad() - cantidad < 0) {
                 model.addAttribute("error", "No se puede disminuir la cantidad de inventario por debajo de 0.");
                 List<Product> Products = ProductRepository.findByEstatus(1);
                 logger.info("Lista de Productos {}", Products);
                 model.addAttribute("products", Products);
-                model.addAttribute("userId",  userId);
+                model.addAttribute("userId", userId);
                 return "inventario_out";
             }
             Product.setCantidad(Product.getCantidad() - cantidad);
@@ -211,54 +249,44 @@ public class InventarioController {
             movement.setUser(user);
             movement.setDateTime(LocalDateTime.now());
             inventoryMovementService.saveMovement(movement);
-    
+
             List<Product> products = ProductRepository.findAll();
             logger.info("Lista de Productos {}", products);
             model.addAttribute("products", products);
         }
-        
-/*         if (Product != null) {
-            if (cantidad < 0 && Product.getCantidad() - cantidad < 0) {
-                model.addAttribute("error", "No se puede disminuir la cantidad de inventario por debajo de 0.");
-                List<Product> Products = ProductRepository.findByEstatus(1);
-                logger.info("Lista de Productos {}", Products);
-                model.addAttribute("products", Products);
-                return "inventario_out";
-            }
-            Product.setCantidad(Product.getCantidad() + cantidad);
-            ProductRepository.save(Product);
-        } */
+
         List<Product> Products = ProductRepository.findByEstatus(1);
         logger.info("Lista de Productos {}", Products);
         model.addAttribute("products", Products);
-        model.addAttribute("userId",  userId);
+        model.addAttribute("userId", userId);
         return "inventario_out";
-
-
 
     }
 
     @PostMapping("/inventario/estatus")
     public String cambiarEstatus(@RequestParam Long id, @RequestParam int estatus) {
-        Product Product = ProductRepository.findById(id).orElse(null);
-        if (Product != null) {
-            Product.setEstatus(estatus);
-            ProductRepository.save(Product);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String roleName = auth.getAuthorities().iterator().next().getAuthority(); // Obtener el rol del usuario
+                                                                                  // autenticado
+        Role role = RoleRepository.findByName(roleName);
+        // Verificar si el usuario tiene acceso a la acción solicitada
+        if (authorizationService.hasAccess(role, "Dar de baja un producto")
+                || authorizationService.hasAccess(role, "Reactivar un producto")) {
+            logger.info("<------------ acceso concedido ---------->");
+
+            Product Product = ProductRepository.findById(id).orElse(null);
+            if (Product != null) {
+                Product.setEstatus(estatus);
+                ProductRepository.save(Product);
+            }
+
+            return "redirect:/inventario_in";
+        } else {
+            logger.info("<------------ acceso negado ---------->");
+            return "acceso_negado";
         }
 
-        return "redirect:/inventario";
     }
 
-/*     private Long getUserIdFromUserDetails(UserDetails userDetails) {
-        // Implementa lógica para obtener el ID del usuario desde UserDetails
-        // Esto depende de cómo tengas configurada tu entidad User y UserDetails
-
-        // Ejemplo hipotético
-        if (userDetails instanceof MyCustomUserDetails) {
-            return ((MyCustomUserDetails) userDetails).getId();
-        } else {
-            // Manejar otros tipos de UserDetails según tu implementación
-            return null;
-        }
-    } */
 }
