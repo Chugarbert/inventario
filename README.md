@@ -5,6 +5,8 @@
 2. [Deployment](#Deployment)  
     1. [Application properties](#application.properties )  
 3. [Run Application](#Run_Application)  
+4. [Videos](#Videos) 
+5. [Mejoras](#Mejoras)
 
 
 ## Features  
@@ -46,7 +48,7 @@ logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n
 
 3. Considerar que la web app correrá en localhost:8080
 
-4. Considerar los siguientes usuarios para las pruebas:
+Considerar los siguientes usuarios para las pruebas:
 ### Usuarios:
 email: admin@example.com
 pass:  adminpassword
@@ -63,3 +65,18 @@ pass:  user2password
 Desde Visual Studio Code, abrir el archivo y dar clic en el boton Run
 ## Screenshots  
 ![alt text](image.png)
+
+## Videos
+Los videos del funcionamiento de la aplicación se encuentran en el siguiente link:
+
+https://drive.google.com/drive/folders/1fU9mx95Ydppqr2o__Eq9oDtigdmIQYQL?usp=drive_link
+
+## Mejoras
+
+1. Incluir un template para el diseño del sitio.
+
+2. Mejorar la navegación del usuario con una mejor agrupación de los menus.
+
+3. Incluir un panel de opciones para los usuarios administradores para administrar usuarios.
+
+4. Agregar el plugin datatables o similar al historial de movimientos de inventario.
