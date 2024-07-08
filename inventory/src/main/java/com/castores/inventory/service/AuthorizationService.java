@@ -20,6 +20,9 @@ public class AuthorizationService {
 
     // Método para verificar si un rol tiene un permiso específico
     public boolean hasPermission(Role role, String permissionName) {
+
+        logger.info("hasPermission------------------>{}", permissionName);
+        logger.info("getPermissions------------------>{}", role.getPermissions());
         return role.getPermissions()
                 .stream()
                 .anyMatch(permission -> permission.getName().equals(permissionName));
@@ -32,7 +35,8 @@ public class AuthorizationService {
         logger.info("hasAccess action ------------------>{}", action);
         // Lógica para mapear 'action' a 'permissionName' y luego verificar permiso
         String permissionName = mapActionToPermission(action);
-        return hasPermission(role, permissionName);
+        logger.info("hasAccess permissionName ------------------>{}", permissionName);
+        return hasPermission(role, action);
     }
 
     // Método para mapear acciones a nombres de permisos (simulado)
