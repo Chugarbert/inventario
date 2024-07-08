@@ -49,7 +49,8 @@ public class DataInitializer {
                     "Reactivar un producto",
                     "Ver modulo salida de productos",
                     "Sacar inventario del almacen",
-                    "Ver modulo del historico"
+                    "Ver modulo del historico",
+                    
             };
 
             Set<Permission> permissions = new HashSet<>();
@@ -107,7 +108,7 @@ public class DataInitializer {
             Set<String> almacenistaPermissionNames = Set.of(
                     "Iniciar session",
                     "Ver modulo inventario",
-                    "Ver modulo para salida de productos",
+                    "Ver modulo salida de productos",
                     "Sacar inventario del almacen");
 
             assignPermissionsToRole(adminRole, adminPermissionNames, permissions);
