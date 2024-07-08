@@ -1,5 +1,11 @@
 # evaluacion_tecnica
- 
+
+## Table of contents  
+1. [Features](#Features)  
+2. [Deployment](#Deployment)  
+    1. [Application properties](#application.properties )  
+3. [Run Application](#Run_Application)  
+
 
 ## Features  
 - Accessibility in VS Code  
@@ -40,7 +46,7 @@ logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n
 
 3. Considerar que la web app correrá en localhost:8080
 
-## Run Application
+## Run_Application
 
 Desde Visual Studio Code, abrir el archivo y dar clic en el boton Run
 ## Screenshots  
