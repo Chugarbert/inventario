@@ -68,6 +68,8 @@ public class InventarioController {
         // Verificar si el usuario tiene acceso a la acción solicitada
         if (authorizationService.hasAccess(role, "Ver modulo inventario")) {
             logger.info("<------------ acceso concedido ---------->");
+            logger.info("role {}", role);
+            model.addAttribute("userRole", role.getName()); // Pasar el rol como atributo al modelo
             return "inventario";
         } else {
             logger.info("<------------ acceso negado ---------->");
@@ -80,18 +82,27 @@ public class InventarioController {
     public String inventario_in(Model model) {
         // Obtener la autenticación actual del contexto de seguridad
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        // Verificar si el principal es del tipo UserDetails
-        if (auth != null && auth.getPrincipal() instanceof UserDetails) {
-            UserDetails userDetails = (UserDetails) auth.getPrincipal();
-            logger.info("userDetails ---------->{}", userDetails.getUsername());
-            User user = UserRepository.findByCorreo(userDetails.getUsername());
+        String roleName = auth.getAuthorities().iterator().next().getAuthority(); // Obtener el rol del usuario
+        // autenticado
+        Role role = RoleRepository.findByName(roleName);
+        // Verificar si el usuario tiene acceso a la acción solicitada
+        if (authorizationService.hasAccess(role, "Ver modulo inventario")) {
+            logger.info("<------------ acceso concedido ---------->");
+            if (auth != null && auth.getPrincipal() instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) auth.getPrincipal();
+                logger.info("userDetails ---------->{}", userDetails.getUsername());
+                User user = UserRepository.findByCorreo(userDetails.getUsername());
 
-            logger.info("userData ------------->{}", user.getIdUsuario());
-            List<Product> Products = ProductRepository.findAll();
+                logger.info("userData ------------->{}", user.getIdUsuario());
+                List<Product> Products = ProductRepository.findAll();
 
-            logger.info("Lista de Productos {}", Products);
-            model.addAttribute("products", Products);
-            model.addAttribute("userId", user.getIdUsuario());
+                logger.info("Lista de Productos {}", Products);
+                model.addAttribute("products", Products);
+                model.addAttribute("userId", user.getIdUsuario());
+            }
+        } else {
+            logger.info("<------------ acceso negado ---------->");
+            return "acceso_negado";
         }
 
         return "inventario_in";
@@ -106,7 +117,7 @@ public class InventarioController {
                                                                                   // autenticado
         Role role = RoleRepository.findByName(roleName);
         // Verificar si el usuario tiene acceso a la acción solicitada
-        if (authorizationService.hasAccess(role, "Ver modulo para salida de productos")) {
+        if (authorizationService.hasAccess(role, "Ver modulo salida de productos")) {
             logger.info("<------------ acceso concedido ---------->");
             if (auth != null && auth.getPrincipal() instanceof UserDetails) {
                 UserDetails userDetails = (UserDetails) auth.getPrincipal();
@@ -119,6 +130,8 @@ public class InventarioController {
                 logger.info("Lista de Productos {}", Products);
                 model.addAttribute("products", Products);
                 model.addAttribute("userId", user.getIdUsuario());
+                logger.info("role {}", role);
+                model.addAttribute("userRole", role.getName()); // Pasar el rol como atributo al modelo
             }
         } else {
             logger.info("<------------ acceso negado ---------->");
@@ -143,6 +156,7 @@ public class InventarioController {
             Product.setCantidad(0);
             Product.setEstatus(1); // Activo
             ProductRepository.save(Product);
+
             return "redirect:/inventario_in";
         } else {
             logger.info("<------------ acceso negado ---------->");
