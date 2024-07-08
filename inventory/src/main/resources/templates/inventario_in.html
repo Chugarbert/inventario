@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Modulo Inventario</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/perfil">Perfil</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/inventario">Inventario <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/login?logout=true">Cerrar Sesión</a>
+                </li>
+            </ul>
+            <span class="navbar-text">
+                <strong>Rol:</strong> <span th:text="${userRole}"></span>
+            </span>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h2>Gestión de Inventario: Entrada de productos</h2>
+
+        <!-- Formulario para agregar nuevos products -->
+        <div class="mb-4">
+            <h3>Agregar Nuevo Producto</h3>
+            <form th:action="@{/inventario/agregar}" method="post">
+                <div class="form-group">
+                    <label for="nombreProducto">Nombre del Producto</label>
+                    <input type="text" class="form-control" id="nombreProducto" name="nombre" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Agregar Producto</button>
+            </form>
+        </div>
+
+        <!-- Formulario para aumentar inventario -->
+        <div class="mb-4">
+            <h3>Aumentar Inventario</h3>
+            <form th:action="@{/inventario/aumentar}" method="post">
+                <div class="form-group">
+                    <label for="productoId">ID del Producto</label>
+                    <input type="number" class="form-control" id="productoId" name="id" required>
+                </div>
+                <div class="form-group">
+                    <label for="cantidad">Cantidad</label>
+                    <input type="number" class="form-control" id="cantidad" name="cantidad" required>
+                    <input type="hidden" th:value="${userId}" id="userId" name="userId">
+                </div>
+                <button type="submit" class="btn btn-primary">Aumentar Inventario</button>
+            </form>
+        </div>
+
+        <!-- Tabla para mostrar products -->
+        <div class="mb-4">
+            <h3>Lista de Productos</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Cantidad</th>
+                        <th>Estatus</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="product : ${products}">
+                        <td th:text="${product.id}">1</td>
+                        <td th:text="${product.nombre}">Producto 1</td>
+                        <td th:text="${product.cantidad}">100</td>
+                        <td th:text="${product.estatus == 1 ? 'Activo' : 'Inactivo'}">Activo</td>
+                        <td>
+                            <form th:action="@{/inventario/estatus}" method="post" style="display:inline;">
+                                <input type="hidden" name="id" th:value="${product.id}" />
+                                <input type="hidden" name="estatus" th:value="${product.estatus == 1 ? 0 : 1}" />
+                                <button type="submit" class="btn btn-warning" th:text="${product.estatus == 1 ? 'Dar de Baja' : 'Reactivar'}">Dar de Baja</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mensaje de error -->
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
